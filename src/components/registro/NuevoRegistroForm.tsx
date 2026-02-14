@@ -6,6 +6,7 @@ import Link from "next/link";
 import { ImagePlus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/supabase/client";
+import { DEFAULT_CATEGORIES, OTRAS_CATEGORIA_VALUE } from "@/lib/categories";
 import type { FamilyMember } from "@/types/database";
 
 const STORAGE_BUCKET = "medical-photos";
@@ -28,13 +29,15 @@ export function NuevoRegistroForm() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const [category, setCategory] = useState("");
+  const [categoryOption, setCategoryOption] = useState<string>("");
+  const [categoryCustom, setCategoryCustom] = useState("");
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [photoPreview, setPhotoPreview] = useState<string | null>(null);
 
   // Cita
   const [scheduledAt, setScheduledAt] = useState("");
-  const [specialty, setSpecialty] = useState("");
+  const [specialtyOption, setSpecialtyOption] = useState<string>("");
+  const [specialtyCustom, setSpecialtyCustom] = useState("");
   const [notes, setNotes] = useState("");
 
   useEffect(() => {
@@ -106,7 +109,7 @@ export function NuevoRegistroForm() {
         title: title.trim(),
         description: description.trim() || null,
         event_date: eventDate,
-        category: category.trim() || null,
+        category: (categoryOption === OTRAS_CATEGORIA_VALUE ? categoryCustom.trim() : categoryOption) || null,
         photo_url: photoUrl,
       });
       if (err) {
@@ -131,7 +134,7 @@ export function NuevoRegistroForm() {
       const { error: err } = await (supabase.from("appointments") as any).insert({
         family_member_id: familyMemberId,
         scheduled_at: new Date(scheduledAt).toISOString(),
-        specialty: specialty.trim() || null,
+        specialty: (specialtyOption === OTRAS_CATEGORIA_VALUE ? specialtyCustom.trim() : specialtyOption) || null,
         notes: notes.trim() || null,
       });
       if (err) {
@@ -258,14 +261,28 @@ export function NuevoRegistroForm() {
             </div>
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-foreground">Categoría (opcional)</label>
-              <input
+              <select
                 id="category"
-                type="text"
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                placeholder="control, receta, examen, vacuna"
+                value={categoryOption}
+                onChange={(e) => setCategoryOption(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground"
-              />
+              >
+                <option value="">Selecciona categoría</option>
+                {DEFAULT_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+                <option value={OTRAS_CATEGORIA_VALUE}>Otra (crear categoría)</option>
+              </select>
+              {categoryOption === OTRAS_CATEGORIA_VALUE && (
+                <input
+                  type="text"
+                  value={categoryCustom}
+                  onChange={(e) => setCategoryCustom(e.target.value)}
+                  placeholder="Escribe la categoría"
+                  className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground"
+                  aria-label="Nombre de la categoría"
+                />
+              )}
             </div>
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-foreground">Descripción (opcional)</label>
@@ -332,14 +349,28 @@ export function NuevoRegistroForm() {
             </div>
             <div>
               <label htmlFor="specialty" className="block text-sm font-medium text-foreground">Especialidad (opcional)</label>
-              <input
+              <select
                 id="specialty"
-                type="text"
-                value={specialty}
-                onChange={(e) => setSpecialty(e.target.value)}
-                placeholder="Pediatría, Ginecología, etc."
+                value={specialtyOption}
+                onChange={(e) => setSpecialtyOption(e.target.value)}
                 className="mt-1 w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground"
-              />
+              >
+                <option value="">Selecciona especialidad</option>
+                {DEFAULT_CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+                <option value={OTRAS_CATEGORIA_VALUE}>Otra (crear especialidad)</option>
+              </select>
+              {specialtyOption === OTRAS_CATEGORIA_VALUE && (
+                <input
+                  type="text"
+                  value={specialtyCustom}
+                  onChange={(e) => setSpecialtyCustom(e.target.value)}
+                  placeholder="Escribe la especialidad"
+                  className="mt-2 w-full rounded-lg border border-border bg-card px-3 py-2 text-foreground"
+                  aria-label="Nombre de la especialidad"
+                />
+              )}
             </div>
             <div>
               <label htmlFor="notes" className="block text-sm font-medium text-foreground">Notas (opcional)</label>
