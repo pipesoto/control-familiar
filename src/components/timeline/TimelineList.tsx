@@ -74,15 +74,12 @@ export function TimelineList() {
     fetchRecords();
   }, [selectedFamilyId]);
 
-  const categoriesForFilter = [
-    ...DEFAULT_CATEGORIES,
-    ...(records
-      .map((r) => r.category)
-      .filter((c): c is string => !!c && !DEFAULT_CATEGORIES.includes(c as typeof DEFAULT_CATEGORIES[number]))
-      .filter((c, i, arr) => arr.indexOf(c) === i)
-      .sort(),
-    ),
-  ];
+  const defaultSet = new Set<string>(DEFAULT_CATEGORIES);
+  const customFromRecords = records
+    .map((r) => r.category)
+    .filter((c): c is string => !!c && !defaultSet.has(c));
+  const uniqueCustom = Array.from(new Set(customFromRecords)).sort();
+  const categoriesForFilter = [...DEFAULT_CATEGORIES, ...uniqueCustom];
   const filteredRecords = selectedCategory
     ? records.filter((r) => r.category === selectedCategory)
     : records;
