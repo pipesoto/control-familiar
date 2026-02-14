@@ -22,7 +22,7 @@ export function DashboardContent() {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
         if (!supabase) {
-          setAppointments(getMockAppointments());
+          setAppointments([]);
           setLoading(false);
           return;
         }
@@ -42,7 +42,7 @@ export function DashboardContent() {
         setAppointments(upcoming.slice(0, 5));
       } catch (e) {
         setError(e instanceof Error ? e.message : "Error al cargar");
-        setAppointments(getMockAppointments());
+        setAppointments([]);
       } finally {
         setLoading(false);
       }
@@ -147,35 +147,4 @@ export function DashboardContent() {
       )}
     </section>
   );
-}
-
-function getMockAppointments(): AppointmentWithMember[] {
-  const in3Days = new Date();
-  in3Days.setDate(in3Days.getDate() + 3);
-  const in1Week = new Date();
-  in1Week.setDate(in1Week.getDate() + 7);
-  return [
-    {
-      id: "mock-1",
-      family_member_id: "mock-fm-1",
-      scheduled_at: in3Days.toISOString(),
-      specialty: "Control prenatal",
-      notes: null,
-      reminder_sent: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      family_members: { name: "María", relationship: "madre" },
-    },
-    {
-      id: "mock-2",
-      family_member_id: "mock-fm-2",
-      scheduled_at: in1Week.toISOString(),
-      specialty: "Pediatría",
-      notes: null,
-      reminder_sent: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      family_members: { name: "Sofía", relationship: "hija" },
-    },
-  ];
 }

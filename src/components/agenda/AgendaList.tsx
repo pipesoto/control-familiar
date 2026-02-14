@@ -11,37 +11,6 @@ type AppointmentWithMember = Appointment & {
   family_members?: { name: string; relationship: string } | null;
 };
 
-function getMockAppointments(): AppointmentWithMember[] {
-  const in3Days = new Date();
-  in3Days.setDate(in3Days.getDate() + 3);
-  const in1Week = new Date();
-  in1Week.setDate(in1Week.getDate() + 7);
-  return [
-    {
-      id: "mock-1",
-      family_member_id: "mock-fm-1",
-      scheduled_at: in3Days.toISOString(),
-      specialty: "Control prenatal",
-      notes: null,
-      reminder_sent: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      family_members: { name: "María", relationship: "madre" },
-    },
-    {
-      id: "mock-2",
-      family_member_id: "mock-fm-2",
-      scheduled_at: in1Week.toISOString(),
-      specialty: "Pediatría",
-      notes: null,
-      reminder_sent: false,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString(),
-      family_members: { name: "Sofía", relationship: "hija" },
-    },
-  ];
-}
-
 export function AgendaList() {
   const [appointments, setAppointments] = useState<AppointmentWithMember[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +21,7 @@ export function AgendaList() {
         const { createClient } = await import("@/lib/supabase/client");
         const supabase = createClient();
         if (!supabase) {
-          setAppointments(getMockAppointments());
+          setAppointments([]);
           setLoading(false);
           return;
         }
@@ -69,9 +38,9 @@ export function AgendaList() {
         const list = (data ?? []) as AppointmentWithMember[];
         const now = new Date().toISOString();
         const upcoming = list.filter((a) => a.scheduled_at >= now);
-        setAppointments(upcoming.length > 0 ? upcoming : getMockAppointments());
+        setAppointments(upcoming);
       } catch {
-        setAppointments(getMockAppointments());
+        setAppointments([]);
       } finally {
         setLoading(false);
       }
